@@ -1,0 +1,115 @@
+-- Coloque em ServerScriptService > MissionHandler
+local MissionService = {}
+
+MissionService.Missoes = {
+    { Level = 1, Nome = "Matar Bandidos", EXP = 50, NPC = "Bandido" },
+        { Level = 5, Nome = "Matar Piratas", EXP = 100, NPC = "Pirata" },
+            { Level = 10, Nome = "Matar Chefes", EXP = 200, NPC = "Chefe" }
+            }
+
+            function MissionService.GetMissao(jogador)
+                local nivel = jogador.leaderstats.Level.Value
+                    local melhorMissao = nil
+                        
+                            for _, missao in pairs(MissionService.Missoes) do
+                                    if nivel >= missao.Level then
+                                                melhorMissao = missao
+                                                        end
+                                                            end
+                                                                return melhorMissao
+                                                                end
+
+                                                                -- Cria leaderstats (nível e experiência)
+                                                                game.Players.PlayerAdded:Connect(function(jogador)
+                                                                    local leaderstats = Instance.new("Folder", jogador)
+                                                                        leaderstats.Name = "leaderstats"
+                                                                            
+                                                                                local nivel = Instance.new("IntValue", leaderstats)
+                                                                                    nivel.Name = "Level"
+                                                                                        nivel.Value = 1
+                                                                                            
+                                                                                                local exp = Instance.new("IntValue", leaderstats)
+                                                                                                    exp.Name = "EXP"
+                                                                                                        exp.Value = 0
+                                                                                                        end)
+
+                                                                                                        return MissionService
+                                                                                                        -- Coloque em StarterPlayerScripts > AutoFarmGUI
+                                                                                                        local Players = game:GetService("Players")
+                                                                                                        local jogador = Players.LocalPlayer
+                                                                                                        local MissionService = require(game:GetService("ServerScriptService").MissionHandler)
+
+                                                                                                        -- Cria a GUI
+                                                                                                        local gui = Instance.new("ScreenGui", jogador.PlayerGui)
+                                                                                                        gui.Name = "AutoFarmGUI"
+
+                                                                                                        local frame = Instance.new("Frame", gui)
+                                                                                                        frame.Size = UDim2.new(0.2, 0, 0.3, 0)
+                                                                                                        frame.Position = UDim2.new(0.05, 0, 0.7, 0)
+                                                                                                        frame.BackgroundColor3 = Color3.new(0.1, 0.1, 0.1)
+
+                                                                                                        -- Elementos da GUI
+                                                                                                        local titulo = Instance.new("TextLabel", frame)
+                                                                                                        titulo.Text = "Auto-Farm System"
+                                                                                                        titulo.Size = UDim2.new(1, 0, 0.2, 0)
+                                                                                                        titulo.Font = Enum.Font.SourceSansBold
+
+                                                                                                        local missaoText = Instance.new("TextLabel", frame)
+                                                                                                        missaoText.Text = "Missão: Nenhuma"
+                                                                                                        missaoText.Position = UDim2.new(0, 0, 0.3, 0)
+                                                                                                        missaoText.Size = UDim2.new(1, 0, 0.2, 0)
+
+                                                                                                        local levelText = Instance.new("TextLabel", frame)
+                                                                                                        levelText.Text = "Level: 1"
+                                                                                                        levelText.Position = UDim2.new(0, 0, 0.5, 0)
+                                                                                                        levelText.Size = UDim2.new(1, 0, 0.2, 0)
+
+                                                                                                        local toggleButton = Instance.new("TextButton", frame)
+                                                                                                        toggleButton.Text = "Iniciar Auto-Farm"
+                                                                                                        toggleButton.Position = UDim2.new(0, 0, 0.7, 0)
+                                                                                                        toggleButton.Size = UDim2.new(1, 0, 0.2, 0)
+
+                                                                                                        -- Atualiza a GUI
+                                                                                                        local function AtualizarGUI()
+                                                                                                            local missao = MissionService.GetMissao(jogador)
+                                                                                                                if missao then
+                                                                                                                        missaoText.Text = "Missão: " .. missao.Nome
+                                                                                                                                levelText.Text = "Level: " .. jogador.leaderstats.Level.Value
+                                                                                                                                    end
+                                                                                                                                    end
+
+                                                                                                                                    -- Loop de Auto-Farm
+                                                                                                                                    local farmAtivo = false
+                                                                                                                                    toggleButton.MouseButton1Click:Connect(function()
+                                                                                                                                        farmAtivo = not farmAtivo
+                                                                                                                                            toggleButton.Text = farmAtivo and "Parar Auto-Farm" or "Iniciar Auto-Farm"
+                                                                                                                                                
+                                                                                                                                                    while farmAtivo and task.wait(1) do
+                                                                                                                                                            local missao = MissionService.GetMissao(jogador)
+                                                                                                                                                                    local char = jogador.Character
+                                                                                                                                                                            if char and missao then
+                                                                                                                                                                                        local npc = workspace.NPCs:FindFirstChild(missao.NPC)
+                                                                                                                                                                                                    if npc then
+                                                                                                                                                                                                                    -- Move-se até o NPC e ataca
+                                                                                                                                                                                                                                    char:MoveTo(npc.HumanoidRootPart.Position)
+                                                                                                                                                                                                                                                    task.wait(0.5)
+                                                                                                                                                                                                                                                                    npc.Humanoid:TakeDamage(999)
+                                                                                                                                                                                                                                                                                    
+                                                                                                                                                                                                                                                                                                    -- Adiciona EXP
+                                                                                                                                                                                                                                                                                                                    jogador.leaderstats.EXP.Value += missao.EXP
+                                                                                                                                                                                                                                                                                                                                    
+                                                                                                                                                                                                                                                                                                                                                    -- Verifica se subiu de nível
+                                                                                                                                                                                                                                                                                                                                                                    if jogador.leaderstats.EXP.Value >= 100 * jogador.leaderstats.Level.Value then
+                                                                                                                                                                                                                                                                                                                                                                                        jogador.leaderstats.Level.Value += 1
+                                                                                                                                                                                                                                                                                                                                                                                                            jogador.leaderstats.EXP.Value = 0
+                                                                                                                                                                                                                                                                                                                                                                                                                                AtualizarGUI()
+                                                                                                                                                                                                                                                                                                                                                                                                                                                end
+                                                                                                                                                                                                                                                                                                                                                                                                                                                            end
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                    end
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                        end
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                        end)
+
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                        -- Atualiza GUI quando o nível muda
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                        jogador.leaderstats.Level.Changed:Connect(AtualizarGUI)
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                        jogador.leaderstats.EXP.Changed:Connect(AtualizarGUI)
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                        AtualizarGUI()
