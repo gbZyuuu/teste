@@ -5,7 +5,7 @@
   3. Clique no botão flutuante para mostrar/esconder.
 ]]
 
-loadstring(game:HttpGet("https://raw.githubusercontent.com/SeuUser/SeuRepo/main/BloxFruitsAutoFarm.lua"))()
+loadstring(game:HttpGet("https://raw.githubusercontent.com/gbZyuuu/teste/refs/heads/main/Teste/main/main.lua"))()
 
 -- Caso o loadstring falhe, use o código abaixo:
 
